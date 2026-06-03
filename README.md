@@ -2,6 +2,9 @@
 
 Nero Party is a realtime listening party app. One person hosts a room, everyone joins from an invite link, the room listens to the same YouTube track together, guests rate each song privately, and the app reveals the winning song when the party ends.
 
+## Video Link
+https://www.loom.com/share/b7985069aea84a0cbdacbef1aec7915a
+
 ## Stack
 
 - Frontend: React + Vite
