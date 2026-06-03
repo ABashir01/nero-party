@@ -3,3 +3,6 @@ dist/
 .env
 *.db
 *.db-journal
+*.log
+frontend/design_focus
+docs

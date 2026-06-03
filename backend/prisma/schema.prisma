@@ -7,4 +7,90 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-// Design your schema here
+model Party {
+  id                  String         @id @default(cuid())
+  joinCode            String         @unique
+  name                String
+  status              String         @default("LOBBY")
+  hostParticipantId   String?
+  maxSongsPerPerson   Int?
+  maxDurationMinutes  Int?
+  votingMode          String         @default("SECRET_RATING")
+  revealWinnerAtEnd   Boolean        @default(true)
+  currentQueueEntryId String?
+  playbackStatus      String         @default("IDLE")
+  playbackPositionMs  Int            @default(0)
+  playbackVideoId     String?
+  playbackStartedAt   DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  endedAt             DateTime?
+
+  hostParticipant   Participant? @relation("HostParticipant", fields: [hostParticipantId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  currentQueueEntry QueueEntry?  @relation("CurrentQueueEntry", fields: [currentQueueEntryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  participants      Participant[]
+  queueEntries      QueueEntry[]
+  votes             Vote[]
+
+  @@index([status])
+}
+
+model Participant {
+  id                String          @id @default(cuid())
+  partyId           String
+  displayName       String
+  role              String
+  sessionToken      String          @unique
+  isConnected       Boolean         @default(false)
+  joinedAt          DateTime        @default(now())
+  lastSeenAt        DateTime        @default(now())
+
+  party            Party       @relation(fields: [partyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  hostForParties   Party[]     @relation("HostParticipant")
+  addedQueueEntries QueueEntry[] @relation("AddedByParticipant")
+  votes            Vote[]
+
+  @@index([partyId, joinedAt])
+}
+
+model QueueEntry {
+  id                  String           @id @default(cuid())
+  partyId             String
+  addedByParticipantId String
+  position            Int
+  queueOrdinal        Int
+  status              String           @default("QUEUED")
+  youtubeVideoId      String
+  title               String
+  artistName          String
+  thumbnailUrl        String
+  durationSeconds     Int
+  playedAt            DateTime?
+  finishedAt          DateTime?
+  createdAt           DateTime         @default(now())
+
+  party           Party       @relation(fields: [partyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  addedBy         Participant @relation("AddedByParticipant", fields: [addedByParticipantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  votes           Vote[]
+  currentForParty Party[]     @relation("CurrentQueueEntry")
+
+  @@index([partyId, position])
+  @@index([partyId, queueOrdinal])
+  @@index([partyId, status])
+}
+
+model Vote {
+  id            String   @id @default(cuid())
+  partyId       String
+  queueEntryId  String
+  participantId String
+  rating        Int
+  submittedAt   DateTime @default(now())
+
+  party       Party       @relation(fields: [partyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  queueEntry  QueueEntry  @relation(fields: [queueEntryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([queueEntryId, participantId])
+  @@index([partyId, queueEntryId])
+}

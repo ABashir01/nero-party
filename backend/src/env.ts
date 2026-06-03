@@ -5,6 +5,6 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 export const env = {
   PORT: process.env.PORT || 3000,
-  SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID || "",
-  SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET || "",
+  FRONTEND_ORIGIN: process.env.FRONTEND_ORIGIN || "http://localhost:5173",
+  YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY || "",
 };

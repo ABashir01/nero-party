@@ -1,49 +1,80 @@
 # Nero Party
 
-A listening party app where friends join, add songs, listen together, and crown a winning song.
+Nero Party is a realtime listening party app. One person hosts a room, everyone joins from an invite link, the room listens to the same YouTube track together, guests rate each song privately, and the app reveals the winning song when the party ends.
 
-## Getting Started
+## Stack
 
-### Prerequisites
+- Frontend: React + Vite
+- Backend: Express + Socket.IO
+- Database: Prisma + SQLite
+- Search and metadata: YouTube Data API v3
+- Playback: YouTube IFrame Player API
 
-- Node.js 18+
-- npm or yarn
-- A music API for search/playback (your choice — see PROMPT.md)
+## Run locally
 
-### Installation
+### 1. Install dependencies
 
-```bash
-# Install all dependencies
+```powershell
 npm install
+```
 
-# Set up environment variables (no API keys required by default)
-cp .env.example .env
+### 2. Create the environment file
 
-# Set up the database
-cd backend && npx prisma migrate dev && cd ..
+```powershell
+Copy-Item .env.example .env
+```
 
-# Start the development servers
+Your backend reads the root `.env` file from this repository.
+
+### 3. Create a YouTube Data API key
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a project or select an existing one.
+3. Enable `YouTube Data API v3`.
+4. Create an API key.
+5. Restrict the key to `YouTube Data API v3`.
+
+For local development, leave the application restriction as `None`. The app sends YouTube Data API requests from the backend, so you do not want an HTTP referrer restriction for this key.
+
+### 4. Fill in `.env`
+
+```env
+PORT=3000
+FRONTEND_ORIGIN=http://localhost:5173
+YOUTUBE_API_KEY=your_key_here
+```
+
+The YouTube Data API key is used for search and metadata. The embedded YouTube player does not need a separate key.
+
+### 5. Set up the database
+
+```powershell
+Set-Location backend
+npx prisma migrate dev
+Set-Location ..
+```
+
+### 6. Start the app
+
+```powershell
 npm run dev
 ```
 
-This will start:
-- Backend on `http://localhost:3000`
-- Frontend on `http://localhost:5173`
+That starts:
 
-## Project Structure
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:3000`
 
-```
+If you change `.env`, restart the backend so the new values are loaded.
+
+## Project structure
+
+```text
 nero-party/
-├── backend/          # Express + Socket.IO server
-│   ├── prisma/       # Database schema & migrations
-│   └── src/          # Server source code
-└── frontend/         # React + Vite client
-    └── src/          # Client source code
+|-- backend/
+|   |-- prisma/
+|   `-- src/
+|-- frontend/
+|   `-- src/
+`-- README.md
 ```
-
-## Tech Stack
-
-- **Backend:** Express.js, Prisma, Socket.IO
-- **Frontend:** React, Vite, TailwindCSS
-- **Database:** SQLite (local)
-- **External API:** Music API of your choice (for song search and playback)
